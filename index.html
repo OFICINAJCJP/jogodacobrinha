@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Cobrinha</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+        }
+        .bot{
+            position: absolute;
+            height: 200px;
+            width: 200px;
+            background-color: antiquewhite;
+            color: black;
+        }
+        #CIMA{
+            top: 50px;
+            left: 50px;
+        }
+        #BAIXO{
+            top: 400px;
+            left: 50px;
+        }
+        #ESQUERDA{
+            top: 50px;
+            right: 50px;
+        }
+        #DIREITA{
+            top: 400px;
+            right: 50px;
+        }
+        #TXT{
+            position: absolute;
+            top: 10px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="TXT">JOGO DA COBRINHA</h1>
+    <canvas id="snakeGame" width="400" height="400"></canvas>
+    <script>
+        const agnt = navigator.userAgent;
+        const canvas = document.getElementById("snakeGame");
+        const ctx = canvas.getContext("2d");
+        const box = 20;
+        let snake = [];
+        snake[0] = { x: 9 * box, y: 10 * box };
+        let food = {
+            x: Math.floor(Math.random() * 19 + 1) * box,
+            y: Math.floor(Math.random() * 19 + 1) * box
+        };
+        if(/Mobi|Android/i.test(agnt)){
+            const bx1 = document.getElementById("CIMA");
+            const bx2 = document.getElementById("BAIXO");
+            const bx3 = document.getElementById("ESQUERDA");
+            const bx4 = document.getElementById("DIREITA");
+            var bxs = [bx1, bx2, bx3, bx4];
+            for(var i = 0; i <= 3; i++){
+                i.style.height = "20px"
+                i.style.width = "20px"
+            }
+            bx1.style.top = "200px"
+            bx2.style.top = "200px"
+            bx3.style.top = "300px"
+            bx4.style.top = "300px"
+            bx1.style.left = "20px"
+            bx2.style.left = "40px"
+            bx3.style.left = "20px"
+            bx4.style.left = "20px"
+        }
+        let direction;
+        document.addEventListener("keydown", event => {
+            if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+            if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+            if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+            if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+        });
+        function MudaDirC(){
+            if (direction !== "DOWN") direction = "UP";
+        }
+        function MudaDirB(){
+            if (direction !== "UP") direction = "DOWN";
+        }
+        function MudaDirE(){
+            if (direction !== "RIGHT") direction = "LEFT";
+        }
+        function MudaDirD(){
+            if (direction !== "LEFT") direction = "RIGHT";
+        }
+        function collision(head, array) {
+            for (let i = 0; i < array.length; i++) {
+                if (head.x === array[i].x && head.y === array[i].y) return true;
+            }
+            return false;
+        }
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = i === 0 ? "green" : "white";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+                ctx.strokeRect(snake[i].x, snake[i].y, box, box);
+            }
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+            let snakeX = snake[0].x;
+            let snakeY = snake[0].y;
+            if (direction === "LEFT") snakeX -= box;
+            if (direction === "UP") snakeY -= box;
+            if (direction === "RIGHT") snakeX += box;
+            if (direction === "DOWN") snakeY += box;
+            if (snakeX === food.x && snakeY === food.y) {
+                food = {
+                    x: Math.floor(Math.random() * 19 + 1) * box,
+                    y: Math.floor(Math.random() * 19 + 1) * box
+                };
+            } else {
+                snake.pop();
+            }
+            let newHead = { x: snakeX, y: snakeY };
+            if (
+                snakeX < 0 - 1||
+                snakeX >= canvas.width - 1 ||
+                snakeY < 0 - 1||
+                snakeY >= canvas.height - 1 ||
+                collision(newHead, snake)
+            ) {
+                clearInterval(game);
+                alert("Game Over");
+            }
+            snake.unshift(newHead);
+        }
+        let game = setInterval(draw, 100);
+    </script>
+    <input type="button" class="bot" id='CIMA' value="CIMA" ontouchstart="MudaDirC()" onclick="MudaDirC()">
+    <input type="button" class="bot" id='BAIXO' value="BAIXO" ontouchstart="MudaDirB()" onclick="MudaDirB()">
+    <input type="button" class="bot" id='ESQUERDA' value="ESQUERDA" ontouchstart="MudaDirE()" onclick="MudaDirE()">
+    <input type="button" class="bot" id='DIREITA' value="DIREITA" ontouchstart="MudaDirD()" onclick="MudaDirD()">
+</body>
+</html>
